@@ -1,0 +1,26 @@
+name: Auto Deploy SiMoner
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Sync and Restart
+        run: |
+          mkdir -p /var/www/html/SiMoner
+
+          cp -rv . /var/www/html/SiMoner/
+          rm -rf /var/www/html/SiMoner/.git
+
+          cd /var/www/html/SiMoner
+          npm install
+          npm run build
+          pm2 restart simoner-app || pm2 start npm --name "simoner-app" -- start
